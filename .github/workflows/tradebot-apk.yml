@@ -32,7 +32,7 @@ jobs:
       - name: Extract Android project
         run: |
           echo "Finding Android project ZIP"
-          ZIP_FILE=$(find . -maxdepth 3 -type f -name 'TradeBotPro_Android_Project.zip' -print -quit)
+          ZIP_FILE=$(find . -type f -iname '*android*project*.zip' -print -quit)
 
           if [ -z "$ZIP_FILE" ]; then
             echo "ERROR: ZIP file not found"
