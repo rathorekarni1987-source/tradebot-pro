@@ -31,8 +31,6 @@ jobs:
 
       - name: Extract Android project
         run: |
-          echo       - name: Extract Android project
-        run: |
           echo "Checking repository files..."
           ls -la
           echo "Finding ZIP..."
