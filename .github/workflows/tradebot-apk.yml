@@ -31,7 +31,16 @@ jobs:
 
       - name: Extract Android project
         run: |
-          unzip -q TradeBotPro_Android_Project.zip -d project
+           echo "Repository files:"
+           ls -la
+           ZIP_FILE=$(find . -name 'TradeBotPro_Android_Project.zip' -type f | head -n 1)
+           if [ -z "$ZIP_FILE" ]; then
+
+            echo "ERROR: Android project ZIP not found"
+
+            exit 1
+          fi
+          unzip -q "$ZIP_FILE" -d project
           ls -la project/TradeBotProAndroid
 
       - name: Download Gradle
