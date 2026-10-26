@@ -31,18 +31,24 @@ jobs:
 
       - name: Extract Android project
         run: |
-          echo "Repository files:"
+          echo       - name: Extract Android project
+        run: |
+          echo "Checking repository files..."
           ls -la
-          ZIP_FILE="TradeBotPro_Android_Project.zip"
+          echo "Finding ZIP..."
+          find . -maxdepth 3 -type f -iname '*.zip'
+
+          ZIP_FILE=$(find . -maxdepth 3 -type f -iname '*Android*Project*.zip' -print -quit)
+
           if [ -z "$ZIP_FILE" ]; then
             echo "ERROR: Android project ZIP not found"
             exit 1
           fi
+
+          echo "Using ZIP: $ZIP_FILE"
           mkdir -p project
           unzip -q "$ZIP_FILE" -d project
-          ls -la project
-          wget -q https://services.gradle.org/distributions/gradle-8.11.1-bin.zip -O /tmp/gradle.zip
-          unzip -q /tmp/gradle.zip -d /tmp
+          ls -la project"
 
       - name: Build debug APK
         working-directory: project/TradeBotProAndroid
