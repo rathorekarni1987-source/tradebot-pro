@@ -31,22 +31,18 @@ jobs:
 
       - name: Extract Android project
         run: |
-          echo "Checking repository files..."
-          ls -la
-          echo "Finding ZIP..."
-          find . -maxdepth 3 -type f -iname '*.zip'
-
-          ZIP_FILE=$(find . -maxdepth 3 -type f -iname '*Android*Project*.zip' -print -quit)
+          echo "Finding Android project ZIP"
+          ZIP_FILE=$(find . -maxdepth 3 -type f -name 'TradeBotPro_Android_Project.zip' -print -quit)
 
           if [ -z "$ZIP_FILE" ]; then
-            echo "ERROR: Android project ZIP not found"
+            echo "ERROR: ZIP file not found"
             exit 1
           fi
 
           echo "Using ZIP: $ZIP_FILE"
           mkdir -p project
           unzip -q "$ZIP_FILE" -d project
-          ls -la project"
+          ls -la project
 
       - name: Build debug APK
         working-directory: project/TradeBotProAndroid
