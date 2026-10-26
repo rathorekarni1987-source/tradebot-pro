@@ -33,7 +33,7 @@ jobs:
         run: |
           echo "Repository files:"
           ls -la
-          ZIP_FILE=$(find . -type f -name 'TradeBotPro_Android_Project.zip' -print -quit)
+          ZIP_FILE="TradeBotPro_Android_Project.zip"
           if [ -z "$ZIP_FILE" ]; then
             echo "ERROR: Android project ZIP not found"
             exit 1
