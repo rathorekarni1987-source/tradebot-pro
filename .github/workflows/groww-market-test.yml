@@ -8,17 +8,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test Groww NIFTY LTP
+      - name: Test Groww Multi-Symbol LTP
         env:
           GROWW_ACCESS_TOKEN: ${{ secrets.GROWW_ACCESS_TOKEN }}
+
         run: |
-          echo "Testing Groww market-data connection..."
+          echo "Testing Groww multi-symbol market data..."
 
           HTTP_CODE=$(curl -sS \
             -o response.json \
             -w "%{http_code}" \
-            -X GET \
-            "https://api.groww.in/v1/live-data/ltp?segment=CASH&exchange_symbols=NSE_NIFTY" \
+            -G \
+            "https://api.groww.in/v1/live-data/ltp" \
+            --data-urlencode "segment=CASH" \
+            --data-urlencode "exchange_symbols=NSE_NIFTY,BSE_SENSEX,NSE_RELIANCE,NSE_TCS,NSE_HDFCBANK" \
             -H "Accept: application/json" \
             -H "Authorization: Bearer ${GROWW_ACCESS_TOKEN}" \
             -H "X-API-VERSION: 1.0")
@@ -37,19 +40,33 @@ jobs:
           with open("response.json", "r") as f:
               data = json.load(f)
 
+          print("Groww raw response:")
+          print(json.dumps(data, indent=2))
+
           if data.get("status") != "SUCCESS":
-              print("Groww returned FAILURE:")
-              print(json.dumps(data, indent=2))
+              print("Groww returned FAILURE.")
               raise SystemExit(1)
 
           payload = data.get("payload", {})
-          nifty = payload.get("NSE_NIFTY")
 
-          if nifty is None:
-              print("NIFTY LTP missing from response.")
-              print(json.dumps(data, indent=2))
-              raise SystemExit(1)
+          symbols = [
+              "NSE_NIFTY",
+              "BSE_SENSEX",
+              "NSE_RELIANCE",
+              "NSE_TCS",
+              "NSE_HDFCBANK",
+          ]
 
-          print("Groww connection: SUCCESS")
-          print("NIFTY 50 LTP:", nifty)
+          print("\n========== REAL MARKET DATA ==========")
+
+          for symbol in symbols:
+              price = payload.get(symbol)
+
+              if price is None:
+                  print(f"{symbol}: NOT RETURNED")
+              else:
+                  print(f"{symbol}: {price}")
+
+          print("======================================")
+          print("Groww multi-symbol connection: SUCCESS")
           PY
