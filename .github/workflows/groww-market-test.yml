@@ -1,0 +1,55 @@
+name: Groww Market Data Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-groww-market-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Test Groww NIFTY LTP
+        env:
+          GROWW_ACCESS_TOKEN: ${{ secrets.GROWW_ACCESS_TOKEN }}
+        run: |
+          echo "Testing Groww market-data connection..."
+
+          HTTP_CODE=$(curl -sS \
+            -o response.json \
+            -w "%{http_code}" \
+            -X GET \
+            "https://api.groww.in/v1/live-data/ltp?segment=CASH&exchange_symbols=NSE_NIFTY" \
+            -H "Accept: application/json" \
+            -H "Authorization: Bearer ${GROWW_ACCESS_TOKEN}" \
+            -H "X-API-VERSION: 1.0")
+
+          echo "HTTP status: ${HTTP_CODE}"
+
+          if [ "${HTTP_CODE}" != "200" ]; then
+            echo "Groww API request failed."
+            cat response.json
+            exit 1
+          fi
+
+          python3 - <<'PY'
+          import json
+
+          with open("response.json", "r") as f:
+              data = json.load(f)
+
+          if data.get("status") != "SUCCESS":
+              print("Groww returned FAILURE:")
+              print(json.dumps(data, indent=2))
+              raise SystemExit(1)
+
+          payload = data.get("payload", {})
+          nifty = payload.get("NSE_NIFTY")
+
+          if nifty is None:
+              print("NIFTY LTP missing from response.")
+              print(json.dumps(data, indent=2))
+              raise SystemExit(1)
+
+          print("Groww connection: SUCCESS")
+          print("NIFTY 50 LTP:", nifty)
+          PY
